@@ -67,7 +67,7 @@ class SlacHandler(SlacSessionController):
         await self.process_cp_state(session, "B")
         await asyncio.sleep(2)
         await self.process_cp_state(session, "C")
-        await asyncio.sleep(20)
+        await asyncio.sleep(200000)
         await self.process_cp_state(session, "A")
 
 

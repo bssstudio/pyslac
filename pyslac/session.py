@@ -344,6 +344,8 @@ class SlacEvseSession(SlacSession):
         logger.debug("Registering NMK and NID into the PLC node...")
         await asyncio.sleep(SLAC_SETTLE_TIME)
         logger.info("CM_SET_KEY: Finished!")
+        
+        logger.debug("SLAC GROUPS: "+str(SLAC_GROUPS))
         return data_rcvd
 
     async def evse_slac_parm(self) -> None:
@@ -518,6 +520,12 @@ class SlacEvseSession(SlacSession):
                 for group in range(atten_profile_ind.num_groups):
                     aag[group] += atten_profile_ind.aag[group]
                 self.num_groups = atten_profile_ind.num_groups
+
+                #fix for tplink 4010
+                for group in range(SLAC_GROUPS):
+                    aag[group] = 9
+                self.num_groups = SLAC_GROUPS
+
                 self.num_total_sounds += 1
                 logger.debug("ATTEN_Profile Sounds received %s", self.num_total_sounds)
                 logger.debug(
@@ -616,6 +624,17 @@ class SlacEvseSession(SlacSession):
                 if self.num_total_sounds > 0:
                     for group in range(SLAC_GROUPS):
                         self.aag[group] = hw(aag[group] / self.num_total_sounds)
+                        logger.debug("SLAC_GROUP_"+str(group)+": "+str(self.aag[group]))
+                
+                        #fix for tplink 4010
+                        self.aag[group] = 9
+                        if group == 55:
+                            self.aag[group] = 15 
+                        if group == 56:
+                            self.aag[group] = 19
+                        if group == 57:
+                            self.aag[group] = 25
+                        logger.debug("SLAC_GROUP_"+str(group)+": "+str(self.aag[group]))
                 logger.debug("CM_MNBC_SOUND: Finished!")
                 return
 
